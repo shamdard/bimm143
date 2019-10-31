@@ -1,0 +1,193 @@
+---
+title: "class08"
+author: "Shabnam Hamdard"
+date: "10/24/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##
+
+```{r}
+# Generate some example data for clustering
+tmp <- c(rnorm(30,-3), rnorm(30,3))
+x <- cbind(x=tmp, y=rev(tmp))
+
+plot(x)
+```
+
+Use the kmeans() function setting k to 2 and nstart=20
+```{r}
+k <- kmeans(x, centers = 2, nstart = 20)
+```
+
+Inspect/print the results
+```{r}
+k
+```
+
+Q. How many points are in each cluster? -> 30 points
+Q. What ‘component’ of your result object details
+ - cluster size?
+ - cluster assignment/membership?
+ - cluster center?
+```{r}
+k$size
+```
+
+```{r}
+k$cluster
+```
+
+```{r}
+k$centers
+```
+
+Plot x colored by the kmeans cluster assignment and
+      add cluster centers as blue points
+
+```{r}
+plot(x, col=k$cluster) # 1 - black; 2 - red
+points(k$centers, col="blue", pch=15)
+```
+
+
+## Hierarchical Clustering
+The `hclust()` function requires a distance matrix as input. You can get this from the `dist()` function
+
+```{r}
+# First we need to calculate point (dis)similarity
+# as the Euclidean distance between observations
+dist_matrix <- dist(x)
+
+# The hclust() function returns a hierarchical
+# clustering model
+hc <- hclust(dist_matrix)
+
+# the print method is not so useful here
+hc
+
+```
+
+```{r}
+plot(hc)
+abline(h=6, col="red")
+grps <- cutree(hc, h=6) # Cut by height h
+```
+
+```{r}
+cutree(hc, k=2)
+```
+
+```{r}
+# Step 1. Generate some example data for clustering
+x <- rbind(
+ matrix(rnorm(100, mean=0, sd = 0.3), ncol = 2), # c1
+ matrix(rnorm(100, mean = 1, sd = 0.3), ncol = 2), # c2
+ matrix(c(rnorm(50, mean = 1, sd = 0.3), # c3
+ rnorm(50, mean = 0, sd = 0.3)), ncol = 2))
+colnames(x) <- c("x", "y")
+
+# Step 2. Plot the data without clustering
+plot(x)
+
+# Step 3. Generate colors for known clusters
+# (just so we can compare to hclust results)
+col <- as.factor( rep(c("c1","c2","c3"), each=50) )
+
+plot(x, col=col)
+```
+
+```{r}
+# clustering
+hc <- hclust( dist(x) )
+
+# draw tree
+plot(hc)
+abline(h=3, col="tomato")
+
+# cut the tree
+grps <- cutree(hc, k=3)
+grps
+```
+
+```{r}
+plot(x, col=grps)
+```
+
+```{r}
+table(grps)
+```
+
+Cross-tabulate (i.e. compare our clustering result with the known answer).
+
+```{r}
+table(grps, col)
+```
+
+## Principal Component Analysis (PCA)
+
+```{r}
+mydata <- read.csv("https://tinyurl.com/expression-CSV", row.names=1)
+
+head(mydata)
+```
+
+How many genes are in this dataset?
+```{r}
+dim(mydata)
+nrow(mydata)
+```
+
+Let's do PCA with the **prcomp()** function.
+```{r}
+pca <- prcomp(t(mydata), scale=TRUE)
+
+plot(pca$x[,1], pca$x[,2])
+
+pca.var <- pca$sdev^2
+pca.var.per <- round(pca.var/sum(pca.var)*100, 1)
+
+pca.var.per
+```
+
+```{r}
+barplot(pca.var.per, main="Scree Plot", xlab="Prinicpal Component", ylab="Percent Variation")
+```
+
+```{r}
+plot(pca$x[,1], pca$x[,2],
+     col=c("red", "red", "red", "red", "red",
+           "blue", "blue", "blue", "blue", "blue"))
+```
+
+```{r}
+x <- read.csv("UK_foods.csv", row.names=1)
+head(x)
+```
+
+```{r}
+barplot(as.matrix(x), beside=T, col=rainbow(nrow(x)))
+```
+
+```{r}
+barplot(as.matrix(x), col=rainbow(nrow(x)))
+```
+
+```{r}
+pairs(x, col=rainbow(10), pch=16)
+```
+
+```{r}
+pca <- prcomp( t(x) )
+summary(pca)
+```
+
+```{r}
+plot(pca$x[,1], pca$x[,2], xlab="PC1", ylab="PC2", xlim=c(-270,500))
+text(pca$x[,1], pca$x[,2], colnames(x), col=c("orange", "red", "blue", "green"))
+```
+

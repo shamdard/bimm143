@@ -1,0 +1,215 @@
+---
+title: "class07"
+author: "Shabnam Hamdard"
+date: "10/22/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Functions Revisited
+
+Source my functions from last day
+
+```{r}
+source("http://tinyurl.com/rescale-R")
+```
+
+
+```{r}
+rescale(1:10)
+```
+
+```{r}
+rescale( c(1, 10, 5, NA, 6))
+```
+
+```{r}
+# rescale2(c(1:10, "pizza"))
+```
+
+```{r}
+# rescale(c(1:10, "pizza"))
+```
+
+## A new function called both_na()
+Write a function to find where there are NA elements in two input vectors.
+
+
+First make some simple input where I know the answer.
+```{r}
+x <- c(1, 2, NA, 3, NA)
+y <- c(NA, 3, NA, 3, 4)
+```
+
+Looked online and found the **is.na** function.
+```{r}
+is.na(x)
+```
+
+And the **which()** function tells me where the true values are.
+```{r}
+which(is.na(x))
+```
+
+```{r}
+which(is.na(y))
+```
+
+```{r}
+is.na(x)
+is.na(y)
+```
+
+The AND function requires two input TRUE to give a TRUE output.
+```{r}
+is.na(x) & is.na(y)
+```
+
+Taking the **sum()** of TRUE FALSE vector will tell me how many TRUE elements I have. This is my working snippet!
+```{r}
+sum(is.na(x) & is.na(y))
+```
+
+
+```{r}
+sum( c(TRUE, TRUE, FALSE, TRUE) )
+```
+
+
+Now turn it into a function.
+
+
+```{r}
+both_na <- function(x, y) {
+  sum( is.na(x) & is.na(y) )
+}
+```
+
+```{r}
+both_na(c(1, NA, 3, NA, 4), c(3, NA, 4, 2, NA))
+```
+
+Test Function
+
+```{r}
+x <- c(NA, NA, NA)
+y1 <- c(1, NA, NA)
+y2 <- c(1, NA, NA, NA)
+```
+
+```{r}
+both_na(x, y2)
+```
+
+```{r}
+x2 <- c(NA, NA)
+both_na(x2, y2)
+```
+
+
+```{r}
+plot(1:10, col=c("red", "blue", "green"))
+```
+
+```{r}
+x3 <- c(1, NA, NA)
+y3 <- c(1, NA, NA, NA, NA, NA, NA)
+both_na(x3, y3)
+```
+
+```{r}
+x3 <- c(1, NA, NA, 1, NA, NA, 1)
+y3 <- c(1, NA, NA, NA, NA, NA, NA)
+```
+
+```{r}
+length(x)
+length(y3)
+```
+
+Add a check for when inputs x and y are not the same length.
+```{r}
+both_na2 <- function(x, y) {
+  if(length(x) != length(y)) {
+    stop("Input x and y are not of equal length!")
+  }
+  sum( is.na(x) & is.na(y) )
+}
+```
+
+```{r}
+# both_na2(x, y3)
+```
+
+
+```{r}
+# student 1
+s1 <- c(100, 100, 100, 100, 100, 100, 100, 90)
+
+# student 2
+s2 <- c(100, NA, 90, 90, 90, 90, 97, 80)
+
+mean(s1[ -which.min(s1) ])
+```
+
+```{r}
+which.min(s2)
+s2[ -which.min(s2) ]
+mean(s2 [- which.min(s2) ], na.rm = TRUE)
+```
+
+We have our working code. Now, we can turn it into a function.
+
+```{r}
+grade <- function(x) {
+  if (any(is.na(x)) ) {
+    warning("Student is missing a homework!")
+  }
+  mean( x[-which.min(x) ], na.rm=TRUE)
+}
+```
+
+```{r}
+grade(s1)
+grade(s2)
+```
+
+```{r}
+url <- "https://tinyurl.com/gradeinput"
+hw <- read.csv(url, row.names=1)
+```
+
+```{r}
+apply(hw, 1, grade)
+```
+
+
+```{r}
+grades <- function(x) {
+  ordered_list <- sort(x, decreasing = TRUE, na.last = TRUE)
+  new_grades <- head(ordered_list, -1)
+  print(paste("The average is", mean(new_grades)))
+  return(new_grades)
+}
+
+grades(s1)
+grades(s2)
+```
+
+```{r}
+grade2 <- function(x) {
+  if (any(is.na(x)) ) {
+    warning("Student is missing a homework!")
+  }
+  sum(mean( x[-which.min(x) ], na.rm=TRUE))/(length(x)-1)
+}
+```
+
+```{r}
+s3 <- c(100, NA, NA, NA, NA)
+grade2(s3)
+```
+

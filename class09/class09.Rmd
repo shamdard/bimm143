@@ -1,0 +1,189 @@
+---
+title: "class09"
+author: "Shabnam Hamdard"
+date: "10/29/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Input
+
+
+```{r}
+wisc.df <- read.csv("WisconsinCancer.csv")
+head(wisc.df)
+```
+
+Note that the `id` and `diagnosis` columns will not be used for most of the following steps.
+
+We have `r nrow(wisc.df)` samples in this dataset.
+
+```{r}
+nrow(wisc.df)
+```
+
+How many benign (not cancerous) and malignant (cancerous) samples do we have in the dataset?
+
+```{r}
+table(wisc.df$diagnosis)
+```
+
+```{r}
+# Convert the features of the data: wisc.data
+wisc.data <- as.matrix(wisc.df[3:32])
+
+# Set the row names of wisc.data
+row.names(wisc.data) <- wisc.df$id
+
+head(wisc.data)
+```
+
+Store the diagnosis for reference in the future as a separate vector!
+
+```{r}
+diagnosis <- wisc.df$diagnosis
+```
+
+## Questions
+
+- Q1. How many observations are in this dataset?
+```{r}
+nrow(wisc.df)
+```
+
+- Q2. How many of the observations have a malignant diagnosis?
+```{r}
+table(wisc.df$diagnosis)
+```
+
+- Q3. How many varialbles/features in the data are suffixed with mean?
+```{r}
+colnames(wisc.df)
+```
+
+```{r}
+grep("_mean", colnames(wisc.df), val= TRUE)
+```
+
+I can use `length()` to count how many matches we have.
+
+```{r}
+length(grep("_mean", colnames(wisc.df), val= TRUE))
+```
+
+```{r}
+colMeans(wisc.data)
+```
+
+```{r}
+apply(wisc.data, 2, sd)
+```
+
+
+
+```{r}
+round( colMeans(wisc.data), 3)
+```
+
+```{r}
+round( apply(wisc.data, 2, sd), 3)
+```
+
+These values look very different so I will use `scale=TRUE` when I run PCA.
+
+```{r}
+# Perform PCA on wisc.data
+wisc.pr <- prcomp(wisc.data, scale=TRUE)
+summary(wisc.pr)
+```
+
+
+
+
+
+Let's make a plot of PC1 vs. PC2
+
+```{r}
+plot(wisc.pr$x[,1], wisc.pr$x[,2], col=diagnosis)
+```
+
+Color by cancer vs. non-cancer
+```{r}
+plot(wisc.pr$x[,1], wisc.pr$x[,2], col=diagnosis)
+```
+
+```{r}
+biplot(wisc.pr)
+```
+
+```{r}
+pc.var <- wisc.pr$sdev^2
+head(pc.var)
+```
+
+```{r}
+data.scaled <- scale(wisc.data)
+data.dist <- dist(data.scaled)
+wc.hclust <- hclust(data.dist)
+plot(wc.hclust)
+abline(h = 20, col="red", lty=2)
+```
+
+```{r}
+wisc.hclust.clusters <- cutree(wc.hclust, k=4)
+table(wisc.hclust.clusters, diagnosis)
+```
+
+```{r}
+wisc.pr.hclust <- hclust(dist(wisc.pr$x[,1:7]), "ward.D2")
+plot(wisc.pr.hclust)
+grps <- cutree(wisc.pr.hclust, k=2)
+```
+
+```{r}
+table(grps)
+table(grps, diagnosis)
+```
+
+```{r}
+plot(wisc.pr$x[,1:2], col=grps)
+```
+
+```{r}
+plot(wisc.pr$x[,1:2], col=diagnosis)
+```
+
+```{r}
+g <- as.factor(grps)
+levels(g)
+
+g <- relevel(g,2)
+levels(g)
+
+plot(wisc.pr$x[,1:2], col=g)
+```
+
+```{r}
+url <- "https://tinyurl.com/new-samples-CSV"
+
+new <- read.csv(url)
+
+npc <- predict(wisc.pr, newdata=new)
+
+npc
+```
+
+Plot these new samples on our PC1 vs PC2 plot...
+
+```{r}
+plot(wisc.pr$x[,1:2], col=g)
+points(npc[,1], npc[,2], col="blue", pch=16, cex=3)
+text(npc[,1], npc[,2], c(1,2), col="white")
+```
+
+- Q17. Which of these new patients should we prioritize for follow up based on your results?
+
+The patients from Group 1.
