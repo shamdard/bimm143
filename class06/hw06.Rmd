@@ -1,0 +1,30 @@
+---
+title: "Lecture 06 Homework"
+author: "Shabnam Hamdard"
+date: "10/17/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(bio3d)
+graph <- function(x) {
+  print(x)
+  seq <- read.pdb(x)
+  seq.chainA <- trim.pdb(seq, chain="A", elety="CA")
+  seq.b <- seq.chainA$atom$b
+  plotb3(seq.b, sse=seq.chainA, typ="l", ylab="Bfactor")
+}
+
+# pdb sequences are accepted as input
+# the function retrieves a pdb file and trims it down to a subset of the data
+# output is a graph made from the subset of the data for the given pdb sequence
+
+graph("4AKE")
+graph("1AKE")
+graph("1E4Y")
+
+```
