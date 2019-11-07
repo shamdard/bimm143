@@ -1,0 +1,28 @@
+---
+title: "Find a Gene Project"
+author: "Shabnam Hamdard"
+date: "11/6/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Questions
+
+Question 1. Tell me the name of a protein you are interested in. Include the species and the accession number. This can be a human protein or a protein from any other species as long as it's function is known.
+
+**Name:** Titin
+
+**Accession:** CAA62188
+
+**Species:** Homo Sapiens
+
+Question 2. Perform a BLAST search against a DNA database, such as a database consisting of genomic DNA or ESTs. The BLAST server can be at NCBI or elsewhere. Include details of the BLAST method used, database searched and any limits applied (e.g. Organism).
+
+**Method:**
+
+**Database:**
+
+**Organism:**

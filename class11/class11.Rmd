@@ -1,0 +1,69 @@
+---
+title: "class11"
+author: "Shabnam Hamdard"
+date: "11/5/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The PDB database for biomolecular structure data
+
+```{r}
+# Read CSV
+data <- read.csv("Data Export Summary.csv", row.names = 1)
+data
+```
+
+```{r}
+x <- data$Total
+x
+
+y <- sum(x)
+
+fraction <- x/y
+
+fraction
+
+percentage <- fraction * 100
+
+percentage
+```
+
+Proportion of entries from each method
+```{r}
+round(data$Total/sum(data$Total) * 100, 2)
+```
+
+Proportion that are proteins
+```{r}
+round(sum(data$Proteins)/sum(data$Total) * 100, 2)
+```
+
+## HIV-Pr Structure Analysis
+
+```{r}
+library(bio3d)
+
+pdb <- read.pdb("1hsg.pdb")
+pdb
+# read.pdb()
+# atom.select()
+# write.pdb()
+# trim.pdb()
+```
+
+```{r}
+ligand <- atom.select(pdb, "ligand", value=TRUE)
+write.pdb(ligand, file="1hsg_ligand.pdb")
+```
+
+```{r}
+protein <- atom.select(pdb, "protein", value=TRUE)
+write.pdb(protein, file="1hsg_protein.pdb")
+```
+
+
+
