@@ -13,9 +13,13 @@ This is my work from [BIMM143 at UC San Diego](https://bioboot.github.io/bimm143
 
 - Class09: [Unsupervised Learning Mini-Project](https://github.com/shamdard/bimm143/blob/master/class09/class09.md)
 
+- Class10: Hands-on with Git
+
 - Class11: [Structural Bioinformatics](https://github.com/shamdard/bimm143/blob/master/class11/class11.md)
 
 - Class12: [Bioinformatics in drug discovery and design](https://github.com/shamdard/bimm143/blob/master/class12/class12.md)
+
+- Class13: Genome informatics and high throughput sequencing (Part 1)
 
 - Class14: [Transcriptomics and the analysis of RNA-Seq data](https://github.com/shamdard/bimm143/blob/master/class14/class14.md)
 
