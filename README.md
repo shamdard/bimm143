@@ -23,6 +23,6 @@ This is my work from [BIMM143 at UC San Diego](https://bioboot.github.io/bimm143
 
 - Class16: Essential UNIX for bioinformatics
 
-- Class17: [Biological network analysis]()
+- Class17: [Biological network analysis](https://github.com/shamdard/bimm143/blob/master/class17/class17.md)
 
-- Class18: [Cancer genomics]()
+- Class18: [Cancer genomics](https://github.com/shamdard/bimm143/blob/master/class18/class18.md)
