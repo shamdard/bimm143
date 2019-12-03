@@ -1,0 +1,124 @@
+---
+title: "class17"
+author: "Shabnam Hamdard"
+date: "11/19/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Connecting to Cytoscape
+
+```{r}
+library(RCy3)
+library(igraph)
+library(RColorBrewer)
+```
+
+```{r}
+library(RCy3)
+
+# Test the connection to Cytoscape.
+cytoscapePing()
+```
+
+```{r}
+# Check the version
+cytoscapeVersionInfo()
+```
+
+```{r}
+g <- makeSimpleIgraph()
+createNetworkFromIgraph(g,"myGraph")
+```
+
+```{r}
+fig <- exportImage(filename="demo", type="png", height=350)
+```
+
+```{r}
+knitr::include_graphics("./demo.png")
+```
+
+```{r}
+setVisualStyle("Marquee")
+```
+
+```{r}
+fig <- exportImage(filename="demo_marquee", type="png", height=350)
+
+knitr::include_graphics("./demo_marquee.png")
+```
+
+```{r}
+styles <- getVisualStyleNames()
+styles
+```
+
+```{r}
+plot(g)
+```
+
+## Data Exploration
+
+```{r}
+## scripts for processing located in "inst/data-raw/"
+prok_vir_cor <- read.delim("./data/virus_prok_cor_abundant.tsv", stringsAsFactors = FALSE)
+
+## Have a peak at the first 6 rows
+head(prok_vir_cor)
+```
+
+```{r}
+g <- graph.data.frame(prok_vir_cor, directed = FALSE)
+```
+
+```{r}
+class(g)
+```
+
+```{r}
+g
+```
+
+```{r}
+plot(g)
+```
+
+```{r}
+plot(g, vertex.label=NA)
+```
+
+```{r}
+plot(g, vertex.size=3, vertex.label=NA)
+```
+
+```{r}
+library(ggraph)
+```
+
+```{r}
+ggraph(g, layout = 'auto') +
+  geom_edge_link(alpha = 0.25) +
+  geom_node_point(color="steelblue") +
+  theme_graph()
+```
+
+```{r}
+createNetworkFromIgraph(g,"myIgraph")
+```
+
+```{r}
+V(g)
+```
+
+```{r}
+E(g)
+```
+
+
+
+
+

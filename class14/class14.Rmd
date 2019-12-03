@@ -1,0 +1,149 @@
+---
+title: "class14"
+author: "Shabnam Hamdard"
+date: "11/12/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Title
+
+```{r}
+counts <- read.csv("data/airway_scaledcounts.csv", stringsAsFactors = FALSE)
+metadata <- read.csv("data/airway_metadata.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+head(counts)
+```
+
+```{r}
+head(metadata)
+```
+
+How many genes do we have in this dataset?
+```{r}
+nrow(counts)
+```
+
+```{r}
+nrow(metadata)
+```
+
+We want to know if there is a difference in expression values for control (non-drug) vs. treated (drug added cell lines).
+
+First step is to find which experiments were the control experiments and then get the average values across all control experiments. Then we will do the same for drug treated.
+
+```{r}
+control <- metadata[metadata[,"dex"]=="control",]
+
+control.mean <- rowSums( counts[ ,control$id] )/length(control$id)
+
+names(control.mean) <- counts$ensgene
+```
+
+```{r}
+treated <- metadata[metadata[, "dex"]=="treated",]
+
+treated.mean <- rowSums( counts[ ,treated$id] )/length(treatedl$id)
+
+names(treated.mean) <- counts$ensgene
+```
+
+We will combine our meancount data for bookkeeping purposes.
+
+```{r}
+meancounts <- data.frame(control.mean, treated.mean)
+```
+
+Plot control vs treated!
+
+```{r}
+plot(meancounts$control.mean, meancounts$treated.mean, log="xy")
+```
+
+```{r}
+meancounts$log2fc <- log2(meancounts[,"treated.mean"]/meancounts[,"control.mean"])
+
+head(meancounts)
+```
+
+**which** is used to show which values in control and treatment are equal to 0.
+
+**unique** is used to simplify the values returned by which.
+
+The rows that return a value of zero are then removed from the dataset.
+
+```{r}
+zero.vals <- which(meancounts[,1:2]==0, arr.ind=TRUE)
+
+to.rm <- unique(zero.vals[,1])
+mycounts <- meancounts[-to.rm,]
+head(mycounts)
+```
+
+```{r}
+up.ind <- mycounts$log2fc > 2
+down.ind <- mycounts$log2fc < (-2)
+```
+
+```{r}
+sum(up.ind)
+```
+
+```{r}
+sum(down.ind)
+```
+
+```{r}
+head(mycounts[up.ind,])
+```
+
+## DESeq2 analysis
+
+```{r}
+library(DESeq2)
+
+dds <- DESeqDataSetFromMatrix(countData=counts, 
+                              colData=metadata, 
+                              design=~dex, 
+                              tidy=TRUE)
+dds <- DESeq(dds)
+```
+
+```{r}
+res <- results(dds)
+res
+```
+
+```{r}
+# Dull all black plot
+plot( res$log2FoldChange, -log(res$padj))
+abline(v=c(-2,2), col="gray", lty=2)
+abline(h=-log(0.05), col="gray", lty=2)
+```
+
+```{r}
+# Add some color please
+mycols <- rep("gray", nrow(res))
+
+# Makes points with +2 or -2 fold change blue
+mycols[abs(res$log2FoldChange) > 2] <- "blue"
+
+# Make points below p-value cutoff gray
+mycols[ (res$padj > 0.05) ] <- "gray"
+
+plot( res$log2FoldChange, -log(res$padj), col=mycols)
+abline(v=c(-2,2), col="gray", lty=2)
+abline(h=-log(0.05), col="gray", lty=2)
+```
+
+## Save our results for next day...
+
+```{r}
+write.csv(res, file="expression_results.csv")
+```
+

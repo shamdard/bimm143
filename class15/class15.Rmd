@@ -1,0 +1,212 @@
+---
+title: "class15"
+author: "Shabnam Hamdard"
+date: "11/14/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Import count and metadata
+
+```{r}
+library(DESeq2)
+
+metaFile <- "data/GSE37704_metadata.csv"
+countFile <- "data/GSE37704_featurecounts.csv"
+
+# Import metadata and take a peak
+colData = read.csv(metaFile, row.names=1)
+head(colData)
+```
+
+```{r}
+countData = read.csv(countFile, row.names=1)
+head(countData)
+```
+
+The "length" column in countData is going to cause problems with the required matching to the metadata file, so let's remove it here.
+
+```{r}
+countData <- as.matrix(countData[,-1])
+head(countData)
+```
+
+Double check that the colnames in countData match the id values in the colData metadata file.
+
+```{r}
+colnames(countData)
+```
+
+```{r}
+rownames(colData)
+```
+
+We can use the all() function to check if all entries in a vector are TRUE.
+```{r}
+all( colnames(countData) == rownames(colData) )
+```
+
+```{r}
+# Test how the all() function works!
+all( c(T,F,T) )
+```
+
+# Remove zero count genes
+
+We want to remove genes that have 0 count values in alll experiments (i.e. rows that have 0 across all cols).
+
+```{r}
+countData = countData[rowSums(countData) != 0,]
+head(countData)
+```
+
+## DESeq2 Analysis
+
+```{r}
+library(DESeq2)
+
+# Setup the object with our data in the way DESeq wants it
+
+dds = DESeqDataSetFromMatrix(countData=countData,
+                             colData=colData,
+                             design=~condition)
+#Run the analysis
+dds = DESeq(dds)
+```
+
+```{r}
+res = results(dds)
+res
+```
+
+```{r}
+plot( res$log2FoldChange, -log(res$padj) )
+```
+
+# Add some color!
+```{r}
+mycols <- rep("gray", length(res$padj))
+mycols[ abs(res$log2FoldChange) > 2] <- "blue"
+mycols[ res$padj > 0.005 ] <- "gray"
+plot( res$log2FoldChange, -log(res$padj), col=mycols )
+```
+
+```{r}
+library(org.Hs.eg.db)
+
+columns(org.Hs.eg.db)
+```
+
+```{r}
+res$symbol = mapIds(org.Hs.eg.db,
+                    keys= row.names(countData), 
+                    keytype="ENSEMBL",
+                    column="SYMBOL",
+                    multiVals="first")
+
+res
+```
+
+```{r}
+res$entrez = mapIds(org.Hs.eg.db,
+                    keys=row.names(countData),
+                    keytype="ENSEMBL",
+                    column="ENTREZID",
+                    multiVals="first")
+```
+
+```{r}
+res$name =   mapIds(org.Hs.eg.db,
+                    keys=row.names(res),
+                    keytype="ENSEMBL",
+                    column="GENENAME",
+                    multiVals="first")
+```
+
+## Pathway analysis
+
+```{r}
+library(gage)
+library(gageData)
+```
+
+``` {r}
+data(kegg.sets.hs)
+data(sigmet.idx.hs)
+
+# Focus on signaling and metabolic pathways only
+kegg.sets.hs = kegg.sets.hs[sigmet.idx.hs]
+
+# Examine the first 3 pathways
+head(kegg.sets.hs, 3)
+```
+
+```{r}
+foldchanges = res$log2FoldChange
+names(foldchanges) = res$entrez
+head(foldchanges)
+```
+
+```{r}
+keggres = gage(foldchanges, gsets=kegg.sets.hs)
+```
+
+```{r}
+attributes(keggres)
+```
+
+```{r}
+head(keggres$less)
+```
+
+```{r}
+library(pathview)
+
+pathview(gene.data=foldchanges, pathway.id="hsa04110")
+```
+
+```{r}
+pathview(gene.data=foldchanges, pathway.id="hsa04110", kegg.native=FALSE)
+```
+
+```{r}
+## Focus on top 5 upregulated pathways here for demo purposes only
+keggrespathways <- rownames(keggres$greater)[1:5]
+
+# Extract the 8 character long IDs part of each string
+keggresids = substr(keggrespathways, start=1, stop=8)
+keggresids
+```
+
+```{r}
+pathview(gene.data=foldchanges, pathway.id=keggresids, species="hsa")
+```
+
+```{r}
+krp <- rownames(keggres$less)[1:5]
+
+krids = substr(krp, start=1, stop=8)
+krids
+```
+
+```{r}
+pathview(gene.data=foldchanges, pathway.id=krids, species="hsa")
+```
+
+# Section 3
+
+```{r}
+data(go.sets.hs)
+data(go.subs.hs)
+
+# Focus on Biological Process subset of GO
+gobpsets = go.sets.hs[go.subs.hs$BP]
+
+gobpres = gage(foldchanges, gsets=gobpsets, same.dir=TRUE)
+
+lapply(gobpres, head)
+```
+
