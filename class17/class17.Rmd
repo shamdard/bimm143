@@ -9,6 +9,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 ## Connecting to Cytoscape
 
 ```{r}
@@ -18,12 +19,10 @@ library(RColorBrewer)
 ```
 
 ```{r}
-# Test the connection to Cytoscape.
 cytoscapePing()
 ```
 
 ```{r}
-# Check the version
 cytoscapeVersionInfo()
 ```
 
