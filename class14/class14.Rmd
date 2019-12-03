@@ -48,7 +48,7 @@ names(control.mean) <- counts$ensgene
 ```{r}
 treated <- metadata[metadata[, "dex"]=="treated",]
 
-treated.mean <- rowSums( counts[ ,treated$id] )/length(treatedl$id)
+treated.mean <- rowSums( counts[ ,treated$id] )/length(treated$id)
 
 names(treated.mean) <- counts$ensgene
 ```

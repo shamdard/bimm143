@@ -2,7 +2,7 @@
 title: "class17"
 author: "Shabnam Hamdard"
 date: "11/19/2019"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -18,8 +18,6 @@ library(RColorBrewer)
 ```
 
 ```{r}
-library(RCy3)
-
 # Test the connection to Cytoscape.
 cytoscapePing()
 ```
